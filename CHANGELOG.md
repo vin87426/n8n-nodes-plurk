@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-06-28
+
+### Changed
+
+- Excluded the TypeScript incremental build cache from the published package.
+- Explicitly included `README.md` and `LICENSE` in package files.
+
 ## [0.1.1] - 2026-06-28
 
 ### Changed

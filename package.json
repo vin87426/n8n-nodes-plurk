@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-plurk",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "n8n community node for Plurk API 2.0 endpoints.",
 	"license": "MIT",
 	"homepage": "https://github.com/vin87426/n8n-nodes-plurk#readme",
@@ -33,7 +33,10 @@
 		"prepublishOnly": "n8n-node prerelease"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"!dist/.tsbuildinfo",
+		"README.md",
+		"LICENSE"
 	],
 	"n8n": {
 		"n8nNodesApiVersion": 1,
