@@ -1,4 +1,3 @@
-/* eslint-disable @n8n/community-nodes/no-http-request-with-manual-auth */
 /* eslint-disable n8n-nodes-base/node-param-default-missing */
 import type {
 	IDataObject,
@@ -13,7 +12,6 @@ import type {
 } from 'n8n-workflow';
 import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import type { OAuthCredentials } from '../../lib/oauth';
-import { generateOAuthHeader } from '../../lib/oauth';
 import type { OperationDefinition, ParamDefinition, ResourceDefinition } from './actions';
 import { normalizeValue, resources } from './actions';
 
@@ -139,12 +137,9 @@ async function plurkApiRequest(
 	this: IExecuteFunctions,
 	operation: OperationDefinition,
 	apiUrl: string,
-	credentials: OAuthCredentials,
 	params: Record<string, string>,
 ): Promise<IDataObject> {
-	const headers: IDataObject = {
-		Authorization: generateOAuthHeader(apiUrl, operation.method, credentials, params),
-	};
+	const headers: IDataObject = {};
 	const requestOptions: IHttpRequestOptions = {
 		method: operation.method,
 		url: apiUrl,
@@ -159,7 +154,11 @@ async function plurkApiRequest(
 		requestOptions.body = new URLSearchParams(params);
 	}
 
-	return (await this.helpers.httpRequest(requestOptions)) as IDataObject;
+	return (await this.helpers.httpRequestWithAuthentication.call(
+		this,
+		'plurkOAuth1Api',
+		requestOptions,
+	)) as IDataObject;
 }
 
 export class Plurk implements INodeType {
@@ -198,7 +197,7 @@ export class Plurk implements INodeType {
 				}
 
 				const raw = await this.getCredentials('plurkOAuth1Api');
-				const credentials = getCredentials(raw, Boolean(operation.twoLegged), this.getNode());
+				getCredentials(raw, Boolean(operation.twoLegged), this.getNode());
 				const apiUrl = `https://www.plurk.com${operation.path}`;
 
 				if (operation.fileParam) {
@@ -209,20 +208,23 @@ export class Plurk implements INodeType {
 					) as string;
 					const binaryData = this.helpers.assertBinaryData(i, binaryPropertyName);
 					const buffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
-					const response = await this.helpers.httpRequest({
-						method: 'POST',
-						url: apiUrl,
-						headers: { Authorization: generateOAuthHeader(apiUrl, 'POST', credentials) },
-						body: {
-							[operation.fileParam.apiName]: {
-								value: buffer,
-								options: {
-									filename: binaryData.fileName ?? 'upload.jpg',
-									contentType: binaryData.mimeType ?? 'image/jpeg',
+					const response = await this.helpers.httpRequestWithAuthentication.call(
+						this,
+						'plurkOAuth1Api',
+						{
+							method: 'POST',
+							url: apiUrl,
+							body: {
+								[operation.fileParam.apiName]: {
+									value: buffer,
+									options: {
+										filename: binaryData.fileName ?? 'upload.jpg',
+										contentType: binaryData.mimeType ?? 'image/jpeg',
+									},
 								},
 							},
 						},
-					});
+					);
 
 					returnData.push({ json: response as IDataObject, pairedItem: i });
 					continue;
@@ -247,7 +249,7 @@ export class Plurk implements INodeType {
 					}
 				}
 
-				const response = await plurkApiRequest.call(this, operation, apiUrl, credentials, params);
+				const response = await plurkApiRequest.call(this, operation, apiUrl, params);
 				returnData.push({ json: response, pairedItem: i });
 			} catch (error) {
 				if (this.continueOnFail()) {
