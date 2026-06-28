@@ -16,7 +16,7 @@
 在 n8n 的 Community Nodes 設定中安裝此 package：
 
 ```text
-n8n-nodes-plurk
+@vin87426/n8n-nodes-plurk
 ```
 
 安裝後，在 workflow 中新增 `Plurk` node 即可開始設定資源、操作與認證資訊。
@@ -122,6 +122,21 @@ npm run dev
 ```bash
 npm run check
 ```
+
+## 發布與 n8n verified 流程
+
+此專案使用 `n8n-node release` 搭配 GitHub Actions 發布，讓 npm package 產生 provenance，符合 n8n Creator Portal verified community node 的發布要求。
+
+1. 先在 npm package settings 設定 Trusted Publishing，publisher 指向此 GitHub repository 與 `.github/workflows/publish.yml`；或在 GitHub Actions secrets 設定 `NPM_TOKEN` 作為 fallback。
+2. 本機執行：
+
+   ```bash
+   npm run release
+   ```
+
+3. 本機 release 會執行 lint/build、更新 changelog、建立 release commit、建立版本 tag，並 push 到 GitHub。
+4. GitHub Actions 會被版本 tag 觸發，執行 `npm run release`；在 CI 中這個 command 會 build 後以 `npm publish` 搭配 provenance 發布到 npm。
+5. npm package 顯示 provenance 後，再提交到 n8n Creator Portal 申請 verified。
 
 ## 參考文件
 
