@@ -1,109 +1,123 @@
 # n8n-nodes-plurk
 
-這是一個 n8n community node，提供 Plurk API 2.0 的常用資源與操作，讓你可以在 n8n workflow 中讀取時間軸、發噗、管理回應、搜尋、上傳照片，以及呼叫其他 Plurk API endpoint。
+This package provides an n8n community node for Plurk API 2.0. It lets workflows read timelines, publish plurks, manage responses, search Plurk, upload photos, and call other Plurk API resources from one Plurk integration.
 
-## 功能特色
+## Features
 
-- 支援 Plurk API 2.0 endpoint
-- 使用 OAuth 1.0a 簽署 Plurk API request
-- 依 Plurk API 類別整理 Resources 與 Operations
-- 支援可接受檔案的 API endpoint 進行 binary upload
-- 可作為 n8n AI tool 使用
-- 支援 Plurk 的 two-legged OAuth endpoint；這類 endpoint 只需要 `Consumer Key` 與 `Consumer Secret`
+- Plurk API 2.0 resources and operations grouped by API category
+- OAuth 1.0a request signing for Plurk API requests
+- Support for three-legged OAuth operations that require user access tokens
+- Support for two-legged OAuth operations that only require a consumer key and consumer secret
+- Binary upload support for Plurk API endpoints that accept files
+- Usable as an n8n AI tool
 
-## 安裝方式
+## Installation
 
-在 n8n 的 Community Nodes 設定中安裝此 package：
+Install this package from n8n's Community Nodes settings:
 
 ```text
 @vin87426/n8n-nodes-plurk
 ```
 
-安裝後，在 workflow 中新增 `Plurk` node 即可開始設定資源、操作與認證資訊。
+After installation, add the `Plurk` node to a workflow and select the resource, operation, and credentials you want to use.
 
-## Plurk Credential 設定
+## Credentials
 
-此 node 使用 `Plurk OAuth1 API` credential。你需要在 n8n 中建立一組 credential，並填入以下欄位：
+The node uses the `Plurk OAuth1 API` credential type.
 
-| n8n 欄位             | Plurk OAuth 對應資訊                   | 用途                      |
-| -------------------- | -------------------------------------- | ------------------------- |
-| `Consumer Key`       | Plurk App 的 consumer key              | 辨識你的 Plurk App        |
-| `Consumer Secret`    | Plurk App 的 consumer secret           | 用於 OAuth request 簽章   |
-| `OAuth Token`        | 使用者授權後取得的 access token key    | 代表 Plurk 使用者呼叫 API |
-| `OAuth Token Secret` | 使用者授權後取得的 access token secret | 用於 access token 簽章    |
+| n8n field            | Plurk OAuth value         | Purpose                             |
+| -------------------- | ------------------------- | ----------------------------------- |
+| `Consumer Key`       | Plurk app consumer key    | Identifies your Plurk app           |
+| `Consumer Secret`    | Plurk app consumer secret | Signs OAuth requests                |
+| `OAuth Token`        | User access token key     | Authorizes requests as a Plurk user |
+| `OAuth Token Secret` | User access token secret  | Signs user-authorized requests      |
 
-大多數 Plurk API 都是 three-legged OAuth，需要四個欄位都填寫。少數公開或工具類 endpoint 是 two-legged OAuth，只需要 `Consumer Key` 與 `Consumer Secret`；如果你不確定要呼叫的操作是哪一種，建議先填完整四個欄位。
+Most Plurk API endpoints use three-legged OAuth and require all four fields. Some public or utility endpoints use two-legged OAuth and only require `Consumer Key` and `Consumer Secret`. If you are unsure, configure all four fields.
 
-### 取得 Consumer Key 與 Consumer Secret
+### Get a Consumer Key and Consumer Secret
 
-1. 登入 Plurk。
-2. 開啟 [Plurk App 建立頁面](https://www.plurk.com/PlurkApp/create)。
-3. 建立一個 Plurk App。
-4. 建立完成後，在 App 資訊頁取得 `consumer key` 與 `consumer secret`。
-5. 回到 n8n，開啟 `Credentials`，新增 `Plurk OAuth1 API`。
-6. 將 Plurk App 的 `consumer key` 填入 `Consumer Key`，將 `consumer secret` 填入 `Consumer Secret`。
+1. Sign in to Plurk.
+2. Open the [Plurk app creation page](https://www.plurk.com/PlurkApp/create).
+3. Create a Plurk app.
+4. Copy the app's consumer key and consumer secret.
+5. In n8n, create a `Plurk OAuth1 API` credential.
+6. Paste the values into `Consumer Key` and `Consumer Secret`.
 
-### 取得 OAuth Token 與 OAuth Token Secret
+### Get an OAuth Token and OAuth Token Secret
 
-Plurk API 使用 OAuth 1.0a。一般完整流程是：先取得 request token，引導使用者到 Plurk 授權頁，取得 OAuth verifier，再交換永久 access token。對 n8n 自動化或 bot 使用情境，最簡單的方式是使用 Plurk 官方 test console 直接產生永久 token。
+Plurk uses OAuth 1.0a. For automation and bot workflows, the simplest way to get permanent access tokens is Plurk's official test console.
 
-1. 確認你已經有 Plurk App 的 `consumer key` 與 `consumer secret`。
-2. 開啟 [Plurk OAuth test console](https://www.plurk.com/OAuth/test)。
-3. 輸入你的 `consumer key` 與 `consumer secret`。
-4. 依頁面指示授權你的 Plurk App 存取帳號。
-5. 授權完成後，複製產生的 `oauth_token` 與 `oauth_token_secret`。
-6. 回到 n8n 的 `Plurk OAuth1 API` credential。
-7. 將 `oauth_token` 填入 `OAuth Token`，將 `oauth_token_secret` 填入 `OAuth Token Secret`。
-8. 儲存 credential，並在 `Plurk` node 中選用這組 credential。
+1. Make sure you already have a Plurk app consumer key and consumer secret.
+2. Open the [Plurk OAuth test console](https://www.plurk.com/OAuth/test).
+3. Enter your consumer key and consumer secret.
+4. Authorize the Plurk app when prompted.
+5. Copy the generated `oauth_token` and `oauth_token_secret`.
+6. Paste them into `OAuth Token` and `OAuth Token Secret` in the n8n credential.
+7. Save the credential and select it in the `Plurk` node.
 
-> 請妥善保存 `Consumer Secret` 與 `OAuth Token Secret`。這些資訊等同於允許你的 workflow 代表該 Plurk 帳號呼叫 API，不應提交到 Git repository 或公開分享。
+Keep `Consumer Secret` and `OAuth Token Secret` private. They allow workflows to call Plurk as the authorized account.
 
-### OAuth 端點參考
+## Basic Usage
 
-如果你要自行實作 OAuth 授權流程，可參考 Plurk API 2.0 文件中的 OAuth flow。主要端點如下：
+1. Add a `Plurk` node to an n8n workflow.
+2. Select a `Plurk OAuth1 API` credential.
+3. Select a resource, such as `Timeline`, `Responses`, `Users`, or `Search`.
+4. Select an operation.
+5. Fill in the operation parameters.
+6. Execute the workflow.
 
-| 用途                     | URL                                         |
-| ------------------------ | ------------------------------------------- |
-| 取得 Request Token       | `https://www.plurk.com/OAuth/request_token` |
-| 使用者授權頁面           | `https://www.plurk.com/OAuth/authorize`     |
-| 使用者授權頁面（行動版） | `https://www.plurk.com/m/authorize`         |
-| 取得 Access Token        | `https://www.plurk.com/OAuth/access_token`  |
+## Example Workflows
 
-OAuth request 使用 HMAC-SHA1 簽章，OAuth 參數會放在 HTTP `Authorization` header。更多 Plurk API 細節可參考 [docs/plurk-api-2.0.md](docs/plurk-api-2.0.md)。
+### Publish a Plurk
 
-## 基本使用方式
+1. Add a manual trigger.
+2. Add a `Plurk` node.
+3. Set `Resource` to `Timeline`.
+4. Set `Operation` to `Plurk Add`.
+5. Enter `Content` and choose a `Qualifier`.
+6. Run the workflow to publish the plurk.
 
-1. 在 n8n workflow 中新增 `Plurk` node。
-2. 選擇 `Plurk OAuth1 API` credential。
-3. 選擇要使用的 `Resource`，例如 `Timeline`、`Responses`、`Users`、`Search`。
-4. 選擇對應的 `Operation`。
-5. 填寫該 operation 需要的參數。
-6. 執行 workflow。
+### Search Plurk
 
-## 可用資源
+1. Add a manual trigger.
+2. Add a `Plurk` node.
+3. Set `Resource` to `Search`.
+4. Set `Operation` to `Search`.
+5. Enter a search query and optional offset.
+6. Use the returned items in later workflow steps.
 
-目前 node 依 Plurk API 類別提供下列資源：
+### Upload a Photo
 
-- Users
+1. Add a node that provides binary data, such as an HTTP Request node or another binary-producing node.
+2. Add a `Plurk` node.
+3. Select the photo upload operation.
+4. Set `Binary Property` to the binary property name from the previous node.
+5. Execute the workflow.
+
+## Available Resources
+
+The node currently exposes these Plurk API resource groups:
+
+- Alerts
+- Blocks
+- Bookmarks
+- Cliques
+- Emoticons
+- Friends/Fans
+- OAuth Utilities
+- Photos
+- Polling
+- Premium
 - Profile
 - Realtime
-- Polling
-- Timeline
 - Responses
-- Friends/Fans
-- Alerts
-- Bookmarks
-- Photos
-- Premium
 - Search
-- Emoticons
-- Blocks
-- Cliques
-- OAuth Utilities
+- Timeline
+- Users
 
-實際可用 operation 會顯示在 n8n 的 `Operation` 下拉選單中。
+The exact operation list is available in the node's `Operation` field and in [docs/plurk-api-2.0.md](docs/plurk-api-2.0.md).
 
-## 本機開發
+## Development
 
 ```bash
 npm install
@@ -111,39 +125,45 @@ npm run lint
 npm run build
 ```
 
-開發時可使用：
+During development, run:
 
 ```bash
 npm run dev
 ```
 
-完整檢查可執行：
+Run the complete local check with:
 
 ```bash
 npm run check
 ```
 
-## 發布與 n8n verified 流程
+Run n8n's community package scanner with:
 
-此專案使用 `n8n-node release` 搭配 GitHub Actions 發布，讓 npm package 產生 provenance，符合 n8n Creator Portal verified community node 的發布要求。
+```bash
+npx @n8n/scan-community-package @vin87426/n8n-nodes-plurk
+```
 
-1. 先在 npm package settings 設定 Trusted Publishing，publisher 指向此 GitHub repository 與 `.github/workflows/publish.yml`；或在 GitHub Actions secrets 設定 `NPM_TOKEN` 作為 fallback。
-2. 本機執行：
+## Publishing and n8n Verification
+
+This project publishes through GitHub Actions with npm provenance, which is required for n8n community node verification from May 1, 2026.
+
+1. Configure npm Trusted Publishing for this GitHub repository and `.github/workflows/publish.yml`, or configure the `NPM_TOKEN` GitHub Actions secret as a fallback.
+2. Run the release process locally:
 
    ```bash
    npm run release
    ```
 
-3. 本機 release 會執行 lint/build、更新 changelog、建立 release commit、建立版本 tag，並 push 到 GitHub。
-4. GitHub Actions 會被版本 tag 觸發，執行 `npm run release`；在 CI 中這個 command 會 build 後以 `npm publish` 搭配 provenance 發布到 npm。
-5. npm package 顯示 provenance 後，再提交到 n8n Creator Portal 申請 verified。
+3. The release process updates the changelog, creates a version commit, creates a version tag, and pushes the tag.
+4. GitHub Actions publishes the package to npm with provenance.
+5. After npm shows provenance for the new package version, submit the package to the n8n Creator Portal for verification.
 
-## 參考文件
+## References
 
-- [Plurk API 2.0 摘要](docs/plurk-api-2.0.md)
-- [Plurk App 建立頁面](https://www.plurk.com/PlurkApp/create)
+- [Plurk API 2.0 summary](docs/plurk-api-2.0.md)
+- [Plurk app creation page](https://www.plurk.com/PlurkApp/create)
 - [Plurk OAuth test console](https://www.plurk.com/OAuth/test)
-- [n8n Community Nodes 文件](https://docs.n8n.io/integrations/community-nodes/)
+- [n8n Community Nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 
 ## License
 
