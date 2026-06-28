@@ -1,0 +1,51 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"target": "es2022",
+		"lib": ["es2022"],
+
+		"rootDir": ".",
+		"outDir": "./dist/",
+
+		"removeComments": true,
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true,
+
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": false,
+
+		"strictNullChecks": true,
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+
+		"useUnknownInCatchVariables": true,
+		"forceConsistentCasingInFileNames": true,
+
+		"preserveConstEnums": true,
+		"esModuleInterop": true,
+		"resolveJsonModule": true,
+		"incremental": true,
+		"skipLibCheck": true,
+		"noEmitOnError": true,
+		"importsNotUsedAsValues": "remove",
+		"verbatimModuleSyntax": false,
+		"allowSyntheticDefaultImports": true,
+		"stripInternal": true,
+		"tsBuildInfoFile": "./dist/.tsbuildinfo",
+		"newLine": "lf"
+	},
+	"include": [
+		"credentials/**/*.ts",
+		"lib/**/*.ts",
+		"nodes/**/*.ts",
+		"nodes/**/*.json",
+		"package.json"
+	],
+	"exclude": ["dist", "node_modules"]
+}
